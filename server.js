@@ -18,14 +18,24 @@ const posts = [
   }
 ]
 
-const users = [{username: "ringo"}]
+const users = []
 
 
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
 
-  const username = req.body.username
-  const user = { name: username }
-  
+  const user = users.find(user => user.name = req.body.name)
+  if (user === null){
+    return res.status(400).send('Username or Password is incorrect')
+  }
+  try {
+    if (await bcrypt.compare(req.body.password, user.password)){
+      console.log("login successful")
+    } else {
+      res.send('Username or Password is incorrect')
+    }
+  } catch {
+    res.status(500).send
+  }
   const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET)
   res.json({ accessToken: accessToken })
 
