@@ -1,6 +1,7 @@
 require('dotenv').config()
 const express = require('express')
 
+const bcrypt = require('bcrypt')
 const app = express()
 const jwt = require('jsonwebtoken')
 app.use(express.json())
@@ -17,6 +18,8 @@ const posts = [
   }
 ]
 
+const users = [{username: "ringo"}]
+
 
 app.post('/login', (req, res) => {
 
@@ -32,6 +35,26 @@ app.get('/posts', authenticateToken, (req, res) => {
   res.json(posts.filter(post => post.username === req.user.name))
 })
 
+app.get('/users', (req, res)=> {
+  res.json(users)
+})
+
+app.post('/users', async(req, res) => {
+  try {
+    console.log(req.body);
+    const salt = await bcrypt.genSalt()
+    const hashedPassword = await bcrypt.hash(req.body.password, salt)
+    const user = {
+      name: req.body.name, 
+      password: hashedPassword
+    }
+    users.push(user)
+    res.status(201).send()
+  }catch (error){
+    console.log(error)
+    throw error
+  }
+})
 
 
 
